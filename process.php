@@ -1,15 +1,5 @@
 <?php
-// Settings. Edit these.
-
-$multi = 'false'; // true = use top 3 colors for lights 1, 2, and 3. false = use top color for Group 0
-$path = "/path/to/whatever/directory/"; // path to where your scanned images are stored
-$bridge = 'x.x.x.x'; // ip address of your internal bridge
-$hue_key = 'your-hue-dev-user'; // valid api user
-$debug = 'true'; // uncomment this for some debug info
-
-// end Settings
-
-
+require_once('settings.php');
 // required libarary for image quantization
 require_once('color-thief-php.php');
 
