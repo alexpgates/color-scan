@@ -4,17 +4,32 @@ color-scan grabs the dominant color(s) from images and passes the color(s) to Ph
 
 # How does it work?
 
-When the process script is called, it'll grab the latest image in the $path you set in the settings. Then it will grab the top 3 dominant colors from the image, convert RGB to the xy color space, then send the color(s) to your Hue bridge.
+When the process script is called, it grabs the latest image from a directory. Color Thief handles the color quantization and provides RGB colors. RGB is converted the the xy color space, then sent to your Hue bridge.
 
 # How do the settings work?
 
-There are a few things you need to set up in process.php. 
+    $color_mode = 'multi'; // "multi" or "single"
+    // "multi" uses different colors for each light (defined in $light_ids), 
+    // "single" uses the most dominant color found in the image for a Hue group (defined in $group_id)
 
-    $multi = 'false'; // true = use top 3 colors for lights 1, 2, and 3 respectively, or send the top color to group 0
-    $path = "/path/to/whatever/directory/"; // path to where your scanned images are stored.
-    $bridge = 'x.x.x.x'; // ip address of your internal bridge
-    $hue_key = 'your-hue-dev-user'; // valid api user
-    $debug = 'true'; // Display debug info (and RGB colors) on the screen
+    $light_ids = array( 1, 2, 3 ); 
+    // ids of your Hue lights that you want to use with color-scan
+    // Grab these from your bridge. http://developers.meethue.com/1_lightsapi.html
+
+    $group_id = 0; 
+    // must be set  if using single color mode;
+    // Grab this from your bridge. http://developers.meethue.com/2_groupsapi.html
+
+    $path = "/path/to/your/images/";
+    // directory where you want to look for an image to process
+
+    $bridge = 'x.x.x.x'; 
+    // ip address of your internal bridge
+
+    $hue_key = 'hue-user'; 
+    // valid api user
+
+    //$debug = 'debug'; // uncomment this for some debug info
 
 **Note: color-scan doesn't handle registering a dev user on your bridge. You'll need to handle that on your own.** (<http://developers.meethue.com/4_configurationapi.html>)
 
@@ -29,18 +44,14 @@ After adjusting the settings to fit your needs, drop a jpeg in the directory you
 
 # Why did you make this?
 
-I wanted to build something that would allow me to scan an image (or a piece of paper with some color) and have my lights change to match the dominant color(s) in the scanned image. Pointless, I know, but the thought occurred to me and I wanted to try it out.
+I wanted to build something that would allow me to scan an image (or a piece of paper with some color) and have my lights change to match the dominant color(s) in the scanned image.
 
-I pulled that all together with color-scan + the addition of a folder action in OS X that triggers process.php when a new image is added to the directory defined in $path.
+I pulled that all together with color-scan + the addition of a folder action in OS X that runs process.php. The folder action is set on the file I defined in $path, and made with an automator workflow that just executes a shell script when files are added to the directory.
+[inotify](http://en.wikipedia.org/wiki/Inotify) would probably work on linux as an alternative to os x and folder actions.
 
-# Disclaimer
-
-- This isn't really written to be very flexible off the shelf. I built it around what I have (just a set of 3 lights), but it _could_ be extended to work with more than three. (You should totally do this.)
-- The function to pass off the commands to the Hue bridge is just a little function written with cURL. I wanted to keep things lightweight, so I avoided using any REST libraries, for better or for worse.
-- <http://i.imgur.com/oGhAXTM.jpg>
 
 # License
 
-color-scan is MIT licensed, so go nuts.
+color-scan is MIT licensed.
 
 Color Thief has it's own license, so check here: <https://github.com/lokesh/color-thief>
