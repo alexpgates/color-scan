@@ -1,10 +1,12 @@
 <?php
+// *make sure you set these*
 require_once('settings.php');
+
 // required libarary for image quantization
 require_once('color-thief-php.php');
 
 
-// This part grabs the latest image added to $path
+// Grab the latest file added to this directory
 $latest_ctime = 0;
 $latest_filename = '';    
 
@@ -20,8 +22,8 @@ while (false !== ($entry = $d->read())) {
   	}
 }
 
-// get a palette of 3 colors for the latest image
-$dominantColors = ColorThiefPHP::getPalette($path.$latest_filename, 2);
+// use Color Thief to grab dominant colors in the image
+$dominantColors = ColorThiefPHP::getPalette($path.$latest_filename, (count($light_ids) - 1));
 
 
 // Create arrays to hold the RGB of the image and the XYZ transaltions 
@@ -43,25 +45,41 @@ foreach($dominantColors as $key => $color){
     $rgb_arr[$key] = $color[0].','.$color[1].','.$color[2];
 }
 
-$x = 1;
-if($multi == 'true'){
-	// Set lights 1, 2, 3 with the top three dominant colors
-    foreach($xy_arr as $key => $xy){
-        $cmd = array();
-        $cmd['xy'] = $xy;
+// depending on the $color_mode setting, send the xy value to the Hue lights
+
+switch ($color_mode) {
+
+    case 'multi':
+        
+        foreach($light_ids as $key => $l){
+            $cmd = array('xy' => $xy_arr[$key]);
+            $json_cmd = json_encode($cmd, JSON_NUMERIC_CHECK);
+            sendHue('lights/'.$l.'/state', $json_cmd);
+            $x++;
+        }
+
+        break;
+    
+    case 'single':
+
+        $cmd = array('xy' => $xy_arr[0]);
         $json_cmd = json_encode($cmd, JSON_NUMERIC_CHECK);
-        sendHue('lights/'.$x.'/state', $json_cmd);
-        $x++;
-    }
-}else{
-	// set all the lights in Group 0 to the most dominant color
-    $cmd = array();
-    $cmd['xy'] = $xy_arr[0];
-    $json_cmd = json_encode($cmd, JSON_NUMERIC_CHECK);
-    sendHue('groups/0/action', $json_cmd);
+        sendHue('groups/'.$group_id.'/action', $json_cmd);
+        break;
+
+    default:
+        // use "multi" as defauly, I suppose
+        foreach($light_ids as $key => $l){
+            $cmd = array('xy' => $xy_arr[$key]);
+            $json_cmd = json_encode($cmd, JSON_NUMERIC_CHECK);
+            sendHue('lights/'.$l.'/state', $json_cmd);
+            $x++;
+        }
+
+        break;
 }
 
-if($debug == 'true'){
+if(isset($debug)){
     echo 'Processing file: '.$latest_filename;
     echo "<pre>xy_arr";
     print_r($xy_arr);
@@ -76,11 +94,13 @@ if($debug == 'true'){
 	}
 }
 
+// This is just a thrown together function to make the PUT requests to the Hue bridge
 function sendHue($path, $data){
+
 	global $bridge, $hue_key, $debug;
 	$chlead = curl_init();
 	
-	// fixing this so the xy value we pass is formatted properly. I know the json could be encoded better, but http://i.imgur.com/oGhAXTM.jpg
+	// fixing this so the xy value we pass is formatted properly. 
     $data = str_replace(']"', ']', $data);
     $data = str_replace('"[', '[', $data);
 	
@@ -95,12 +115,13 @@ function sendHue($path, $data){
 	$chleadapierr = curl_errno($chlead);
 	$chleaderrmsg = curl_error($chlead);
 
-    if($debug == 'true'){
+    if(isset($debug)){
         echo "<pre>";
         print_r($chleadresult);
         echo "</pre>";
     }
 
 	curl_close($chlead);
+
 }
 ?>
