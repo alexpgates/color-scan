@@ -52,7 +52,7 @@ switch ($color_mode) {
     case 'multi':
         
         foreach($light_ids as $key => $l){
-            $cmd = array('xy' => $xy_arr[$key]);
+            $cmd = array('xy' => $xy_arr[$key], 'bri' => $brightness);
             $json_cmd = json_encode($cmd, JSON_NUMERIC_CHECK);
             sendHue('lights/'.$l.'/state', $json_cmd);
             $x++;
@@ -62,7 +62,7 @@ switch ($color_mode) {
     
     case 'single':
 
-        $cmd = array('xy' => $xy_arr[0]);
+        $cmd = array('xy' => $xy_arr[0], 'bri' => $brightness);
         $json_cmd = json_encode($cmd, JSON_NUMERIC_CHECK);
         sendHue('groups/'.$group_id.'/action', $json_cmd);
         break;
@@ -70,7 +70,7 @@ switch ($color_mode) {
     default:
         // use "multi" as defauly, I suppose
         foreach($light_ids as $key => $l){
-            $cmd = array('xy' => $xy_arr[$key]);
+            $cmd = array('xy' => $xy_arr[$key], 'bri' => $brightness);
             $json_cmd = json_encode($cmd, JSON_NUMERIC_CHECK);
             sendHue('lights/'.$l.'/state', $json_cmd);
             $x++;
