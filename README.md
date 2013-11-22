@@ -1,3 +1,5 @@
+<iframe src="//player.vimeo.com/video/79212881?title=0&amp;byline=0&amp;portrait=0" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
 ### What is this?
 
 color-scan grabs the dominant color(s) from images and passes the color(s) to [Philips Hue lights](https://www.meethue.com/en-US). You can decide if you want to send the main color to a group of lights, or individual colors to individual lights. It also works with scanned photos, of course, or with any jpeg that you drop in the directory. You don't actually _need_ the scanner.
