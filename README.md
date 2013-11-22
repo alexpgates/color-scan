@@ -16,6 +16,9 @@ When the process script is called, it grabs the latest image from a directory. C
     // ids of your Hue lights that you want to use with color-scan
     // Grab these from your bridge. http://developers.meethue.com/1_lightsapi.html
 
+    $brightness = 150;
+    // 0 - 255 <http://developers.meethue.com/1_lightsapi.html>
+
     $group_id = 0; 
     // must be set  if using single color mode;
     // Grab this from your bridge. http://developers.meethue.com/2_groupsapi.html
